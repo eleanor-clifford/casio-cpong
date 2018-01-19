@@ -1,0 +1,12 @@
+//------------------------------------------------------------------
+// Addin-Application header control file, created with the CASIO SDK
+//------------------------------------------------------------------
+[OUTPUT]     : "CPONG.G1A"
+[BINDATA]    : "FXADDINror.bin"
+[DISPNAME]   : "CPONG"
+[APPNAME]    : "@CPONG"
+[VERSION]    : "00.00.0000"
+[APL_ICON]   : "MainIcon.bmp"
+[MODULE_NUM] : 0
+[MOD1_TITLE] : "CPONG"
+[MOD1_ICON]  : "eActivityIcon.bmp"
