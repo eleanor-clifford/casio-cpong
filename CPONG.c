@@ -70,29 +70,22 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         
         Sleep(100);
         
-        // Fixing CASIO's retardation
-        //GetKeyWait(KEYWAIT_HALTON_TIMEROFF, 0, 0, &key); 
-        GetKey(&key);
+        // CASIO is retarded and made IsKeyDown deprecated, so let's just use !IsKeyUp
 
-        switch (key) 
-        {
-            case KEY_CHAR_4:
-                player1Pos -= sensitivity;
-                break;
-            case KEY_CHAR_1:
-                player1Pos += sensitivity;
-                break;
-            case KEY_CTRL_UP:
-                player2Pos -= sensitivity;
-                break;
-            case KEY_CTRL_DOWN:
-                player2Pos += sensitivity;
-                break;
-            case KEY_CTRL_DEL:
-                pause();
-                break;
-            default:
-                break;
+        if (!IsKeyUp(KEY_CHAR_4)) {
+            player1Pos -= sensitivity;
+        }
+        if (!IsKeyUp(KEY_CHAR_1)) {
+            player1Pos += sensitivity;
+        }
+        if (!IsKeyUp(KEY_CTRL_UP)) {
+            player2Pos -= sensitivity;
+        }
+        if (!IsKeyUp(KEY_CTRL_DOWN)) {
+            player2Pos += sensitivity;
+        }
+        if (!IsKeyUp(KEY_CTRL_DEL)) {
+            pause();
         }
         switch (ball->x)
         {
