@@ -1,0 +1,929 @@
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    1
+
+************ OBJECT LISTING ************
+
+FILE NAME: C:\Users\timmy\Projects\casio-cpong\CPONG.c
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+         CPONG.c     1    /*****************************************************************/
+         CPONG.c     2    /*                                                               */
+         CPONG.c     3    /*   CASIO fx-9860G SDK Library                                  */
+         CPONG.c     4    /*                                                               */
+         CPONG.c     5    /*   File name : [ProjectName].c                                 */
+         CPONG.c     6    /*                                                               */
+         CPONG.c     7    /*   Copyright (c) 2006 CASIO COMPUTER CO., LTD.                 */
+         CPONG.c     8    /*                                                               */
+         CPONG.c     9    /*****************************************************************/
+         CPONG.c    10    #include "fxlib.h"
+         CPONG.c    11    
+         CPONG.c    12    
+         CPONG.c    13    //****************************************************************************
+         CPONG.c    14    //  AddIn_main (Sample program main function)
+         CPONG.c    15    //
+         CPONG.c    16    //  param   :   isAppli   : 1 = This application is launched by MAIN MENU.
+         CPONG.c    17    //                        : 0 = This application is launched by a strip in eACT application.
+         CPONG.c    18    //
+         CPONG.c    19    //              OptionNum : Strip number (0~3)
+         CPONG.c    20    //                         (This parameter is only used when isAppli parameter is 0.)
+         CPONG.c    21    //
+         CPONG.c    22    //  retval  :   1 = No error / 0 = Error
+         CPONG.c    23    //
+         CPONG.c    24    //****************************************************************************
+         CPONG.c    25    #define BAT_SIZE 6
+         CPONG.c    26    typedef struct tag_Ball { 
+         CPONG.c    27        int x;
+         CPONG.c    28        int y;
+         CPONG.c    29        int xV;
+         CPONG.c    30        int yV;
+         CPONG.c    31    } Ball;
+         CPONG.c    32    void reset(Ball*);
+         CPONG.c    33    void pause();
+         CPONG.c    34    void endGame(int,int);
+         CPONG.c    35    unsigned char* IntToString(int);
+         CPONG.c    36    void DrawPlayer(float,float);
+         CPONG.c    37    void DrawBall(Ball*);
+         CPONG.c    38    int AddIn_main(int isAppli, unsigned short OptionNum)
+P   00000000              _AddIn_main:                     ; function: AddIn_main
+                                                           ; frame size=8
+                                                           ; used runtime library name:
+                                                           ; __adds, __subs, __itos, __gts, __lts
+    00000000 D934                   MOV.L       L399+10,R9 ; _PrintXY
+    00000002 EBFF                   MOV         #-1,R11
+         CPONG.c    39    {
+         CPONG.c    40        unsigned int key;
+         CPONG.c    41        
+         CPONG.c    42        float player1Pos = 40;
+    00000004 DC34                   MOV.L       L399+14,R12; H'42200000
+         CPONG.c    43        float player2Pos = 40;
+         CPONG.c    44        int sensitivity = 1;
+         CPONG.c    45        
+         CPONG.c    46        //TODO: input speed
+         CPONG.c    47        int speed = 1;
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    2
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+         CPONG.c    48        int player1Score = 0;
+    00000006 EA00                   MOV         #0,R10
+         CPONG.c    49        int player2Score = 0;
+         CPONG.c    50    
+         CPONG.c    51        int i = -1;
+         CPONG.c    52        int j;
+         CPONG.c    53        
+         CPONG.c    54        const unsigned char *text = (unsigned char*) "START";
+    00000008 D334                   MOV.L       L399+18,R3 ; L317
+    0000000A 7FF8                   ADD         #-8,R15
+    0000000C 1F31                   MOV.L       R3,@(4,R15)
+    0000000E 6DC3                   MOV         R12,R13
+         CPONG.c    55        
+         CPONG.c    56        Ball *ball = (Ball*) malloc(sizeof(Ball));
+    00000010 D333                   MOV.L       L399+22,R3 ; _malloc
+    00000012 68A3                   MOV         R10,R8
+    00000014 430B                   JSR         @R3
+    00000016 E410                   MOV         #16,R4
+    00000018 6E03                   MOV         R0,R14
+         CPONG.c    57        reset(ball);
+    0000001A B115                   BSR         _reset
+    0000001C 6403                   MOV         R0,R4
+         CPONG.c    58    
+         CPONG.c    59        Bdisp_AllClr_DDVRAM(); // clear
+    0000001E D331                   MOV.L       L399+26,R3 ; _Bdisp_AllClr_DDVRAM
+    00000020 430B                   JSR         @R3
+    00000022 0009                   NOP
+         CPONG.c    60        PrintXY(5,57,text,0); // print to VRAM
+    00000024 56F1                   MOV.L       @(4,R15),R6
+    00000026 E539                   MOV         #57,R5
+    00000028 6783                   MOV         R8,R7
+    0000002A 490B                   JSR         @R9
+    0000002C E405                   MOV         #5,R4
+         CPONG.c    61        Bdisp_PutDisp_DD(); // copy VRAM to Display Driver
+    0000002E D32E                   MOV.L       L399+30,R3 ; _Bdisp_PutDisp_DD
+    00000030 430B                   JSR         @R3
+    00000032 0009                   NOP
+         CPONG.c    62        
+         CPONG.c    63        Sleep(500);
+    00000034 9449                   MOV.W       L399,R4    ; H'01F4
+    00000036 D22D                   MOV.L       L399+34,R2 ; _Sleep
+    00000038 420B                   JSR         @R2
+    0000003A 0009                   NOP
+         CPONG.c    64        Bkey_Set_RepeatTime(1,1);
+    0000003C D32C                   MOV.L       L399+38,R3 ; _Bkey_Set_RepeatTime
+    0000003E E501                   MOV         #1,R5
+    00000040 430B                   JSR         @R3
+    00000042 6453                   MOV         R5,R4
+         CPONG.c    65        while(1)
+    00000044              L384:                             
+         CPONG.c    66        {
+         CPONG.c    67            ball->x += ball->xV;
+    00000044 53E2                   MOV.L       @(8,R14),R3
+    00000046 62E2                   MOV.L       @R14,R2
+    00000048 323C                   ADD         R3,R2
+    0000004A 2E22                   MOV.L       R2,@R14
+         CPONG.c    68            ball->y += ball->yV;
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    3
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000004C 53E3                   MOV.L       @(12,R14),R3
+    0000004E 51E1                   MOV.L       @(4,R14),R1
+    00000050 313C                   ADD         R3,R1
+    00000052 1E11                   MOV.L       R1,@(4,R14)
+         CPONG.c    69            i++;
+         CPONG.c    70            
+         CPONG.c    71            Sleep(100);
+    00000054 D325                   MOV.L       L399+34,R3 ; _Sleep
+    00000056 430B                   JSR         @R3
+    00000058 E464                   MOV         #100,R4
+         CPONG.c    72            
+         CPONG.c    73            // Fixing CASIO's retardation
+         CPONG.c    74            //GetKeyWait(KEYWAIT_HALTON_TIMEROFF, 0, 0, &key); 
+         CPONG.c    75            GetKey(&key);
+    0000005A D226                   MOV.L       L399+42,R2 ; _GetKey
+    0000005C 420B                   JSR         @R2
+    0000005E 64F3                   MOV         R15,R4
+         CPONG.c    76    
+         CPONG.c    77            switch (key) 
+    00000060 60F2                   MOV.L       @R15,R0
+    00000062 8834                   CMP/EQ      #52,R0
+    00000064 890C                   BT          L362
+    00000066 8831                   CMP/EQ      #49,R0
+    00000068 8910                   BT          L363
+    0000006A 912F                   MOV.W       L399+2,R1  ; H'7542
+    0000006C 3010                   CMP/EQ      R1,R0
+    0000006E 8913                   BT          L364
+    00000070 912D                   MOV.W       L399+4,R1  ; H'7547
+    00000072 3010                   CMP/EQ      R1,R0
+    00000074 8916                   BT          L365
+    00000076 912B                   MOV.W       L399+6,R1  ; H'7549
+    00000078 3010                   CMP/EQ      R1,R0
+    0000007A 8919                   BT          L366
+    0000007C A01A                   BRA         L385
+    0000007E 0009                   NOP
+    00000080              L362:                            ; case label 
+         CPONG.c    78            {
+         CPONG.c    79                case KEY_CHAR_4:
+         CPONG.c    80                    player1Pos -= sensitivity;
+    00000080 D01D                   MOV.L       L399+46,R0 ; H'3F800000
+    00000082 D31E                   MOV.L       L399+50,R3 ; __subs
+    00000084 430B                   JSR         @R3
+    00000086 61C3                   MOV         R12,R1
+         CPONG.c    81                    break;
+    00000088 A004                   BRA         L397
+    0000008A 0009                   NOP
+    0000008C              L363:                            ; case label 
+         CPONG.c    82                case KEY_CHAR_1:
+         CPONG.c    83                    player1Pos += sensitivity;
+    0000008C D01A                   MOV.L       L399+46,R0 ; H'3F800000
+    0000008E D31C                   MOV.L       L399+54,R3 ; __adds
+    00000090 430B                   JSR         @R3
+    00000092 61C3                   MOV         R12,R1
+         CPONG.c    84                    break;
+    00000094              L397:                             
+    00000094 A00E                   BRA         L385
+    00000096 6C03                   MOV         R0,R12
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    4
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000098              L364:                            ; case label 
+         CPONG.c    85                case KEY_CTRL_UP:
+         CPONG.c    86                    player2Pos -= sensitivity;
+    00000098 D017                   MOV.L       L399+46,R0 ; H'3F800000
+    0000009A D318                   MOV.L       L399+50,R3 ; __subs
+    0000009C 430B                   JSR         @R3
+    0000009E 61D3                   MOV         R13,R1
+         CPONG.c    87                    break;
+    000000A0 A004                   BRA         L398
+    000000A2 0009                   NOP
+    000000A4              L365:                            ; case label 
+         CPONG.c    88                case KEY_CTRL_DOWN:
+         CPONG.c    89                    player2Pos += sensitivity;
+    000000A4 D014                   MOV.L       L399+46,R0 ; H'3F800000
+    000000A6 D316                   MOV.L       L399+54,R3 ; __adds
+    000000A8 430B                   JSR         @R3
+    000000AA 61D3                   MOV         R13,R1
+         CPONG.c    90                    break;
+    000000AC              L398:                             
+    000000AC A002                   BRA         L385
+    000000AE 6D03                   MOV         R0,R13
+    000000B0              L366:                            ; case label 
+         CPONG.c    91                case KEY_CTRL_DEL:
+         CPONG.c    92                    pause();
+    000000B0 B099                   BSR         _pause
+    000000B2 0009                   NOP
+         CPONG.c    93                    break;
+         CPONG.c    94                default:
+         CPONG.c    95                    break;
+    000000B4              L385:                             
+         CPONG.c    96            }
+         CPONG.c    97            switch (ball->x)
+    000000B4 60E2                   MOV.L       @R14,R0
+    000000B6 8805                   CMP/EQ      #5,R0
+    000000B8 8924                   BT          L368
+    000000BA 8878                   CMP/EQ      #120,R0
+    000000BC 893B                   BT          L369
+    000000BE 8801                   CMP/EQ      #1,R0
+    000000C0 8955                   BT          L370
+    000000C2 887D                   CMP/EQ      #125,R0
+    000000C4 8959                   BT          L371
+    000000C6 A065                   BRA         L386
+    000000C8 0009                   NOP
+    000000CA              L399:                             
+    000000CA 01F4                   .DATA.W     H'01F4
+    000000CC 7542                   .DATA.W     H'7542
+    000000CE 7547                   .DATA.W     H'7547
+    000000D0 7549                   .DATA.W     H'7549
+    000000D2 0000                   .DATA.W     0
+    000000D4 <00000000>             .DATA.L     _PrintXY
+    000000D8 42200000               .DATA.L     H'42200000
+    000000DC <00000000>             .DATA.L     L317
+    000000E0 <00000000>             .DATA.L     _malloc
+    000000E4 <00000000>             .DATA.L     _Bdisp_AllClr_DDVRAM
+    000000E8 <00000000>             .DATA.L     _Bdisp_PutDisp_DD
+    000000EC <00000000>             .DATA.L     _Sleep
+    000000F0 <00000000>             .DATA.L     _Bkey_Set_RepeatTime
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    5
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000000F4 <00000000>             .DATA.L     _GetKey
+    000000F8 3F800000               .DATA.L     H'3F800000
+    000000FC <00000000>             .DATA.L     __subs
+    00000100 <00000000>             .DATA.L     __adds
+    00000104              L368:                            ; case label 
+         CPONG.c    98            {
+         CPONG.c    99                case 5:
+         CPONG.c   100                    if (ball->y < player1Pos + BAT_SIZE && ball->y > player1Pos - BAT_SIZE)
+    00000104 D243                   MOV.L       L400+2,R2  ; __itos
+    00000106 420B                   JSR         @R2
+    00000108 50E1                   MOV.L       @(4,R14),R0
+    0000010A 6403                   MOV         R0,R4
+    0000010C D343                   MOV.L       L400+10,R3 ; __adds
+    0000010E 6203                   MOV         R0,R2
+    00000110 D041                   MOV.L       L400+6,R0  ; H'40C00000
+    00000112 430B                   JSR         @R3
+    00000114 61C3                   MOV         R12,R1
+    00000116 D342                   MOV.L       L400+14,R3 ; __lts
+    00000118 430B                   JSR         @R3
+    0000011A 6123                   MOV         R2,R1
+    0000011C 8800                   CMP/EQ      #0,R0
+    0000011E 8939                   BT          L386
+    00000120 D040                   MOV.L       L400+18,R0 ; H'C0C00000
+    00000122 D23E                   MOV.L       L400+10,R2 ; __adds
+    00000124 420B                   JSR         @R2
+    00000126 61C3                   MOV         R12,R1
+    00000128 D33F                   MOV.L       L400+22,R3 ; __gts
+    0000012A 430B                   JSR         @R3
+    0000012C 6143                   MOV         R4,R1
+    0000012E 8800                   CMP/EQ      #0,R0
+    00000130 8B18                   BF          L360
+         CPONG.c   101                        ball->xV *= -1;
+         CPONG.c   102                    break;
+    00000132 A02F                   BRA         L386
+    00000134 0009                   NOP
+    00000136              L369:                            ; case label 
+         CPONG.c   103                case 120: 
+         CPONG.c   104                    if (ball->y < player2Pos + BAT_SIZE && ball->y > player2Pos - BAT_SIZE)
+    00000136 D237                   MOV.L       L400+2,R2  ; __itos
+    00000138 420B                   JSR         @R2
+    0000013A 50E1                   MOV.L       @(4,R14),R0
+    0000013C D337                   MOV.L       L400+10,R3 ; __adds
+    0000013E 6403                   MOV         R0,R4
+    00000140 6203                   MOV         R0,R2
+    00000142 D035                   MOV.L       L400+6,R0  ; H'40C00000
+    00000144 430B                   JSR         @R3
+    00000146 61D3                   MOV         R13,R1
+    00000148 D335                   MOV.L       L400+14,R3 ; __lts
+    0000014A 430B                   JSR         @R3
+    0000014C 6123                   MOV         R2,R1
+    0000014E 8800                   CMP/EQ      #0,R0
+    00000150 8920                   BT          L386
+    00000152 D034                   MOV.L       L400+18,R0 ; H'C0C00000
+    00000154 D231                   MOV.L       L400+10,R2 ; __adds
+    00000156 420B                   JSR         @R2
+    00000158 61D3                   MOV         R13,R1
+    0000015A D333                   MOV.L       L400+22,R3 ; __gts
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    6
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000015C 430B                   JSR         @R3
+    0000015E 6143                   MOV         R4,R1
+    00000160 8800                   CMP/EQ      #0,R0
+    00000162 8917                   BT          L386
+    00000164              L360:
+         CPONG.c   105                        ball->xV *= -1;
+    00000164 52E2                   MOV.L       @(8,R14),R2
+    00000166 02B7                   MUL.L       R11,R2
+    00000168 021A                   STS         MACL,R2
+         CPONG.c   106                    break;
+    0000016A A013                   BRA         L386
+    0000016C 1E22                   MOV.L       R2,@(8,R14)
+    0000016E              L370:                            ; case label 
+         CPONG.c   107                case 1: 
+         CPONG.c   108                    if (++player2Score == 7) {
+    0000016E 7801                   ADD         #1,R8
+    00000170 6083                   MOV         R8,R0
+    00000172 8807                   CMP/EQ      #7,R0
+    00000174 8905                   BT          L358
+    00000176 A009                   BRA         L359
+    00000178 0009                   NOP
+    0000017A              L371:                            ; case label 
+         CPONG.c   109                        // GOTO 1
+         CPONG.c   110                        endGame(player1Score,player2Score);
+         CPONG.c   111                    } else {
+         CPONG.c   112                        // GOTO 0
+         CPONG.c   113                        reset(ball);
+         CPONG.c   114                        continue; // restart game loop
+         CPONG.c   115                    }
+         CPONG.c   116                    break;
+         CPONG.c   117                case 125:
+         CPONG.c   118                    if (++player1Score == 7) {
+    0000017A 7A01                   ADD         #1,R10
+    0000017C 60A3                   MOV         R10,R0
+    0000017E 8807                   CMP/EQ      #7,R0
+    00000180 8B04                   BF          L359
+    00000182              L358:
+         CPONG.c   119                        // GOTO 1
+         CPONG.c   120                        endGame(player1Score,player2Score);
+    00000182 6583                   MOV         R8,R5
+    00000184 B09E                   BSR         _endGame
+    00000186 64A3                   MOV         R10,R4
+    00000188 A004                   BRA         L386
+    0000018A 0009                   NOP
+    0000018C              L359:
+         CPONG.c   121                    } else {
+         CPONG.c   122                        // GOTO 0
+         CPONG.c   123                        reset(ball);
+    0000018C B05C                   BSR         _reset
+    0000018E 64E3                   MOV         R14,R4
+         CPONG.c   124                        continue; // restart game loop
+    00000190 AF58                   BRA         L384
+    00000192 0009                   NOP
+    00000194              L386:                             
+         CPONG.c   125                    }
+         CPONG.c   126                    break;
+         CPONG.c   127                default:
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    7
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+         CPONG.c   128                    break;
+         CPONG.c   129            }
+         CPONG.c   130            switch (ball->y) // optimisation - compiler will generate jump tables
+    00000194 50E1                   MOV.L       @(4,R14),R0
+    00000196 8801                   CMP/EQ      #1,R0
+    00000198 8903                   BT          L373
+    0000019A 883F                   CMP/EQ      #63,R0
+    0000019C 8901                   BT          L374
+    0000019E A004                   BRA         L393
+    000001A0 0009                   NOP
+    000001A2              L373:                            ; case label 
+         CPONG.c   131            {
+         CPONG.c   132                case 1:
+         CPONG.c   133                case 63:
+    000001A2              L374:                            ; case label 
+         CPONG.c   134                    ball->yV *= -1;
+    000001A2 53E3                   MOV.L       @(12,R14),R3
+    000001A4 03B7                   MUL.L       R11,R3
+    000001A6 031A                   STS         MACL,R3
+    000001A8 1E33                   MOV.L       R3,@(12,R14)
+         CPONG.c   135                    break; 
+         CPONG.c   136                default:
+         CPONG.c   137                    break;
+    000001AA              L393:                             
+         CPONG.c   138            }
+         CPONG.c   139            // TODO: SPEED
+         CPONG.c   140            //const unsigned char* test = (unsigned char*)"TEST";
+         CPONG.c   141            /*
+         CPONG.c   142            Bdisp_AllClr_DDVRAM();
+         CPONG.c   143            for (j = 0; j < key; j++) {
+         CPONG.c   144                Bdisp_SetPoint_VRAM(j+5,25,1);
+         CPONG.c   145            }
+         CPONG.c   146            */
+         CPONG.c   147            //PrintXY(60,5,IntToString((int)key),0);
+         CPONG.c   148            Bdisp_AllClr_DDVRAM();
+    000001AA D220                   MOV.L       L400+26,R2 ; _Bdisp_AllClr_DDVRAM
+    000001AC 420B                   JSR         @R2
+    000001AE 0009                   NOP
+         CPONG.c   149            PrintXY(50,5,IntToString(player1Score),0);
+    000001B0 B0BD                   BSR         _IntToString
+    000001B2 64A3                   MOV         R10,R4
+    000001B4 6603                   MOV         R0,R6
+    000001B6 E505                   MOV         #5,R5
+    000001B8 E432                   MOV         #50,R4
+    000001BA 490B                   JSR         @R9
+    000001BC E700                   MOV         #0,R7
+         CPONG.c   150            PrintXY(80,5,IntToString(player2Score),0);
+    000001BE B0B6                   BSR         _IntToString
+    000001C0 6483                   MOV         R8,R4
+    000001C2 6603                   MOV         R0,R6
+    000001C4 E505                   MOV         #5,R5
+    000001C6 E450                   MOV         #80,R4
+    000001C8 490B                   JSR         @R9
+    000001CA E700                   MOV         #0,R7
+         CPONG.c   151            DrawPlayer(5,player1Pos);
+    000001CC D418                   MOV.L       L400+30,R4 ; H'40A00000
+    000001CE B046                   BSR         _DrawPlayer
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    8
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000001D0 65C3                   MOV         R12,R5
+         CPONG.c   152            DrawPlayer(122,player2Pos);
+    000001D2 D418                   MOV.L       L400+34,R4 ; H'42F40000
+    000001D4 B043                   BSR         _DrawPlayer
+    000001D6 65D3                   MOV         R13,R5
+         CPONG.c   153            DrawBall(ball);
+    000001D8 B057                   BSR         _DrawBall
+    000001DA 64E3                   MOV         R14,R4
+         CPONG.c   154            Bdisp_PutDisp_DD();
+    000001DC D216                   MOV.L       L400+38,R2 ; _Bdisp_PutDisp_DD
+    000001DE 420B                   JSR         @R2
+    000001E0 0009                   NOP
+    000001E2 AF2F                   BRA         L384
+    000001E4 0009                   NOP
+         CPONG.c   155        }
+         CPONG.c   156        return 1;
+         CPONG.c   157    }
+         CPONG.c   158    void pause()
+    000001E6              _pause:                          ; function: pause
+                                                           ; frame size=12
+    000001E6 4F22                   STS.L       PR,@-R15
+         CPONG.c   159    {
+         CPONG.c   160        
+         CPONG.c   161        const unsigned char* text = (unsigned char*)"PAUSED";
+    000001E8 D314                   MOV.L       L400+42,R3 ; L330
+    000001EA 7FF8                   ADD         #-8,R15
+         CPONG.c   162        unsigned int key;
+         CPONG.c   163        
+         CPONG.c   164        Bdisp_AllClr_DDVRAM();
+    000001EC D20F                   MOV.L       L400+26,R2 ; _Bdisp_AllClr_DDVRAM
+    000001EE 420B                   JSR         @R2
+    000001F0 1F31                   MOV.L       R3,@(4,R15)
+         CPONG.c   165        PrintXY(1,1,text,0);
+    000001F2 E700                   MOV         #0,R7
+    000001F4 56F1                   MOV.L       @(4,R15),R6
+    000001F6 E501                   MOV         #1,R5
+    000001F8 D311                   MOV.L       L400+46,R3 ; _PrintXY
+    000001FA 430B                   JSR         @R3
+    000001FC 6453                   MOV         R5,R4
+         CPONG.c   166        Bdisp_PutDisp_DD();
+    000001FE D20E                   MOV.L       L400+38,R2 ; _Bdisp_PutDisp_DD
+    00000200 420B                   JSR         @R2
+    00000202 0009                   NOP
+         CPONG.c   167        
+         CPONG.c   168        GetKey(&key);
+    00000204 D30F                   MOV.L       L400+50,R3 ; _GetKey
+    00000206 430B                   JSR         @R3
+    00000208 64F3                   MOV         R15,R4
+         CPONG.c   169    }
+    0000020A 7F08                   ADD         #8,R15
+    0000020C 4F26                   LDS.L       @R15+,PR
+    0000020E 000B                   RTS
+    00000210 0009                   NOP
+    00000212              L400:                             
+    00000212 0000                   .DATA.W     0
+    00000214 <00000000>             .DATA.L     __itos
+    00000218 40C00000               .DATA.L     H'40C00000
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    9
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    0000021C <00000000>             .DATA.L     __adds
+    00000220 <00000000>             .DATA.L     __lts
+    00000224 C0C00000               .DATA.L     H'C0C00000
+    00000228 <00000000>             .DATA.L     __gts
+    0000022C <00000000>             .DATA.L     _Bdisp_AllClr_DDVRAM
+    00000230 40A00000               .DATA.L     H'40A00000
+    00000234 42F40000               .DATA.L     H'42F40000
+    00000238 <00000000>             .DATA.L     _Bdisp_PutDisp_DD
+    0000023C <00000000>             .DATA.L     L330
+    00000240 <00000000>             .DATA.L     _PrintXY
+    00000244 <00000000>             .DATA.L     _GetKey
+         CPONG.c   170    
+         CPONG.c   171    void reset(Ball* ball) 
+    00000248              _reset:                          ; function: reset
+                                                           ; frame size=0
+         CPONG.c   172    {
+         CPONG.c   173        ball->x = 60;
+    00000248 E33C                   MOV         #60,R3
+         CPONG.c   174        ball->y = 40;
+    0000024A E228                   MOV         #40,R2
+    0000024C 2432                   MOV.L       R3,@R4
+         CPONG.c   175        ball->xV = 1;
+    0000024E E501                   MOV         #1,R5
+    00000250 1421                   MOV.L       R2,@(4,R4)
+    00000252 1452                   MOV.L       R5,@(8,R4)
+         CPONG.c   176        ball->yV = 1;
+    00000254 1453                   MOV.L       R5,@(12,R4)
+         CPONG.c   177        Sleep(500);
+    00000256 947A                   MOV.W       L401,R4    ; H'01F4
+    00000258 D33D                   MOV.L       L401+2,R3  ; _Sleep
+    0000025A 432B                   JMP         @R3
+    0000025C 0009                   NOP
+         CPONG.c   178    }
+         CPONG.c   179    void DrawPlayer(float x, float y)
+    0000025E              _DrawPlayer:                     ; function: DrawPlayer
+                                                           ; frame size=20
+                                                           ; used runtime library name:
+                                                           ; __stoi
+    0000025E 4F22                   STS.L       PR,@-R15
+         CPONG.c   180    {
+         CPONG.c   181        Bdisp_DrawLineVRAM(x,(int)y - BAT_SIZE,x,(int)y + BAT_SIZE);
+    00000260 D33C                   MOV.L       L401+6,R3  ; __stoi
+    00000262 7FF0                   ADD         #-16,R15
+    00000264 2F42                   MOV.L       R4,@R15
+    00000266 1F51                   MOV.L       R5,@(4,R15)
+    00000268 430B                   JSR         @R3
+    0000026A 6053                   MOV         R5,R0
+    0000026C 1F03                   MOV.L       R0,@(12,R15)
+    0000026E 6703                   MOV         R0,R7
+    00000270 D338                   MOV.L       L401+6,R3  ; __stoi
+    00000272 7706                   ADD         #6,R7
+    00000274 430B                   JSR         @R3
+    00000276 60F2                   MOV.L       @R15,R0
+    00000278 1F02                   MOV.L       R0,@(8,R15)
+    0000027A 6603                   MOV         R0,R6
+    0000027C D336                   MOV.L       L401+10,R3 ; _Bdisp_DrawLineVRAM
+    0000027E 55F3                   MOV.L       @(12,R15),R5
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE   10
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000280 54F2                   MOV.L       @(8,R15),R4
+    00000282 75FA                   ADD         #-6,R5
+    00000284 7F10                   ADD         #16,R15
+    00000286 432B                   JMP         @R3
+    00000288 4F26                   LDS.L       @R15+,PR
+         CPONG.c   182    }
+         CPONG.c   183    void DrawBall(Ball* ball) 
+    0000028A              _DrawBall:                       ; function: DrawBall
+                                                           ; frame size=12
+         CPONG.c   184    {
+         CPONG.c   185        Bdisp_SetPoint_VRAM(ball->x,ball->y,1);
+    0000028A E601                   MOV         #1,R6
+    0000028C 2FE6                   MOV.L       R14,@-R15
+    0000028E 6E43                   MOV         R4,R14
+    00000290 2FD6                   MOV.L       R13,@-R15
+    00000292 4F22                   STS.L       PR,@-R15
+    00000294 DD31                   MOV.L       L401+14,R13; _Bdisp_SetPoint_VRAM
+    00000296 55E1                   MOV.L       @(4,R14),R5
+    00000298 4D0B                   JSR         @R13
+    0000029A 64E2                   MOV.L       @R14,R4
+         CPONG.c   186        Bdisp_SetPoint_VRAM(ball->x,ball->y+1,1);
+    0000029C 55E1                   MOV.L       @(4,R14),R5
+    0000029E E601                   MOV         #1,R6
+    000002A0 7501                   ADD         #1,R5
+    000002A2 4D0B                   JSR         @R13
+    000002A4 64E2                   MOV.L       @R14,R4
+         CPONG.c   187        Bdisp_SetPoint_VRAM(ball->x+1,ball->y,1);
+    000002A6 E601                   MOV         #1,R6
+    000002A8 55E1                   MOV.L       @(4,R14),R5
+    000002AA 64E2                   MOV.L       @R14,R4
+    000002AC 4D0B                   JSR         @R13
+    000002AE 7401                   ADD         #1,R4
+         CPONG.c   188        Bdisp_SetPoint_VRAM(ball->x+1,ball->y+1,1);
+    000002B0 55E1                   MOV.L       @(4,R14),R5
+    000002B2 E601                   MOV         #1,R6
+    000002B4 64E2                   MOV.L       @R14,R4
+    000002B6 7501                   ADD         #1,R5
+    000002B8 4D0B                   JSR         @R13
+    000002BA 7401                   ADD         #1,R4
+         CPONG.c   189    }
+    000002BC 4F26                   LDS.L       @R15+,PR
+    000002BE 6DF6                   MOV.L       @R15+,R13
+    000002C0 000B                   RTS
+    000002C2 6EF6                   MOV.L       @R15+,R14
+         CPONG.c   190    
+         CPONG.c   191    void endGame(int player1Score,int player2Score)
+    000002C4              _endGame:                        ; function: endGame
+                                                           ; frame size=28
+    000002C4 2FE6                   MOV.L       R14,@-R15
+    000002C6 4F22                   STS.L       PR,@-R15
+         CPONG.c   192    {
+         CPONG.c   193        // Lbl 1
+         CPONG.c   194        const unsigned char* ov = (unsigned char*)"GAME OVER";
+    000002C8 D325                   MOV.L       L401+18,R3 ; L343
+    000002CA 7FEC                   ADD         #-20,R15
+         CPONG.c   195        const unsigned char* p1 = (unsigned char*)"PLAYER 1: ";
+    000002CC D225                   MOV.L       L401+22,R2 ; L345
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE   11
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    000002CE 2F52                   MOV.L       R5,@R15
+    000002D0 1F34                   MOV.L       R3,@(16,R15)
+    000002D2 1F23                   MOV.L       R2,@(12,R15)
+         CPONG.c   196        const unsigned char* p2 = (unsigned char*)"PLAYER 2: ";
+    000002D4 D324                   MOV.L       L401+26,R3 ; L347
+    000002D6 1F31                   MOV.L       R3,@(4,R15)
+         CPONG.c   197        const unsigned char* p1s = IntToString(player1Score);
+    000002D8 B029                   BSR         _IntToString
+    000002DA 0009                   NOP
+    000002DC 1F02                   MOV.L       R0,@(8,R15)
+         CPONG.c   198        const unsigned char* p2s = IntToString(player2Score);
+    000002DE B026                   BSR         _IntToString
+    000002E0 64F2                   MOV.L       @R15,R4
+         CPONG.c   199        
+         CPONG.c   200        Bdisp_AllClr_DDVRAM();
+    000002E2 D322                   MOV.L       L401+30,R3 ; _Bdisp_AllClr_DDVRAM
+    000002E4 430B                   JSR         @R3
+    000002E6 2F02                   MOV.L       R0,@R15
+         CPONG.c   201        PrintXY(5,5,ov,0);
+    000002E8 DE21                   MOV.L       L401+34,R14; _PrintXY
+    000002EA E700                   MOV         #0,R7
+    000002EC 56F4                   MOV.L       @(16,R15),R6
+    000002EE E505                   MOV         #5,R5
+    000002F0 4E0B                   JSR         @R14
+    000002F2 6453                   MOV         R5,R4
+         CPONG.c   202        PrintXY(15,5,p1,0);
+    000002F4 56F3                   MOV.L       @(12,R15),R6
+    000002F6 E505                   MOV         #5,R5
+    000002F8 E700                   MOV         #0,R7
+    000002FA 4E0B                   JSR         @R14
+    000002FC E40F                   MOV         #15,R4
+         CPONG.c   203        PrintXY(15,42, p1s,0);
+    000002FE E700                   MOV         #0,R7
+    00000300 56F2                   MOV.L       @(8,R15),R6
+    00000302 E52A                   MOV         #42,R5
+    00000304 4E0B                   JSR         @R14
+    00000306 E40F                   MOV         #15,R4
+         CPONG.c   204        PrintXY(25,5, p2,0);
+    00000308 56F1                   MOV.L       @(4,R15),R6
+    0000030A E505                   MOV         #5,R5
+    0000030C E700                   MOV         #0,R7
+    0000030E 4E0B                   JSR         @R14
+    00000310 E419                   MOV         #25,R4
+         CPONG.c   205        PrintXY(25,42, p2s,0);
+    00000312 E700                   MOV         #0,R7
+    00000314 66F2                   MOV.L       @R15,R6
+    00000316 E52A                   MOV         #42,R5
+    00000318 4E0B                   JSR         @R14
+    0000031A E419                   MOV         #25,R4
+         CPONG.c   206        Bdisp_PutDisp_DD();
+    0000031C D315                   MOV.L       L401+38,R3 ; _Bdisp_PutDisp_DD
+    0000031E 430B                   JSR         @R3
+    00000320 0009                   NOP
+         CPONG.c   207        Sleep(100);
+    00000322 E464                   MOV         #100,R4
+    00000324 D20A                   MOV.L       L401+2,R2  ; _Sleep
+    00000326 7F14                   ADD         #20,R15
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE   12
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+    00000328 4F26                   LDS.L       @R15+,PR
+    0000032A 422B                   JMP         @R2
+    0000032C 6EF6                   MOV.L       @R15+,R14
+         CPONG.c   208        //exit 0;
+         CPONG.c   209    }
+         CPONG.c   210    unsigned char* IntToString(int in)
+    0000032E              _IntToString:                    ; function: IntToString
+                                                           ; frame size=8
+    0000032E 4F22                   STS.L       PR,@-R15
+         CPONG.c   211    {
+         CPONG.c   212        // NOTE: Does not work for int > 9
+         CPONG.c   213        unsigned char* out = (unsigned char*)malloc(2*sizeof(unsigned char));
+    00000330 D311                   MOV.L       L401+42,R3 ; _malloc
+    00000332 7FFC                   ADD         #-4,R15
+    00000334 2F42                   MOV.L       R4,@R15
+    00000336 430B                   JSR         @R3
+    00000338 E402                   MOV         #2,R4
+    0000033A 6403                   MOV         R0,R4
+         CPONG.c   214        *(out+1) = '\x0';
+    0000033C E000                   MOV         #0,R0
+    0000033E 8041                   MOV.B       R0,@(1,R4)
+         CPONG.c   215        *out = (unsigned char) in + 48; 
+    00000340 63F2                   MOV.L       @R15,R3
+    00000342 7330                   ADD         #48,R3
+    00000344 2430                   MOV.B       R3,@R4
+         CPONG.c   216        return out;
+         CPONG.c   217    } 
+    00000346 7F04                   ADD         #4,R15
+    00000348 4F26                   LDS.L       @R15+,PR
+    0000034A 000B                   RTS
+    0000034C 6043                   MOV         R4,R0
+    0000034E              L401:                             
+    0000034E 01F4                   .DATA.W     H'01F4
+    00000350 <00000000>             .DATA.L     _Sleep
+    00000354 <00000000>             .DATA.L     __stoi
+    00000358 <00000000>             .DATA.L     _Bdisp_DrawLineVRAM
+    0000035C <00000000>             .DATA.L     _Bdisp_SetPoint_VRAM
+    00000360 <00000000>             .DATA.L     L343
+    00000364 <00000000>             .DATA.L     L345
+    00000368 <00000000>             .DATA.L     L347
+    0000036C <00000000>             .DATA.L     _Bdisp_AllClr_DDVRAM
+    00000370 <00000000>             .DATA.L     _PrintXY
+    00000374 <00000000>             .DATA.L     _Bdisp_PutDisp_DD
+    00000378 <00000000>             .DATA.L     _malloc
+         CPONG.c   218    
+         CPONG.c   219    
+         CPONG.c   220    
+         CPONG.c   221    
+         CPONG.c   222    //****************************************************************************
+         CPONG.c   223    //**************                                              ****************
+         CPONG.c   224    //**************                 Notice!                      ****************
+         CPONG.c   225    //**************                                              ****************
+         CPONG.c   226    //**************  Please do not change the following source.  ****************
+         CPONG.c   227    //**************                                              ****************
+         CPONG.c   228    //****************************************************************************
+         CPONG.c   229    
+         CPONG.c   230    
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE   13
+
+
+SCT OFFSET   CODE       C LABEL     INSTRUCTION OPERAND    COMMENT
+
+         CPONG.c   231    #pragma section _BR_Size
+         CPONG.c   232    unsigned long BR_Size;
+         CPONG.c   233    #pragma section
+         CPONG.c   234    
+         CPONG.c   235    
+         CPONG.c   236    #pragma section _TOP
+         CPONG.c   237    
+         CPONG.c   238    //****************************************************************************
+         CPONG.c   239    //  InitializeSystem
+         CPONG.c   240    //
+         CPONG.c   241    //  param   :   isAppli   : 1 = Application / 0 = eActivity
+         CPONG.c   242    //              OptionNum : Option Number (only eActivity)
+         CPONG.c   243    //
+         CPONG.c   244    //  retval  :   1 = No error / 0 = Error
+         CPONG.c   245    //
+         CPONG.c   246    //****************************************************************************
+         CPONG.c   247    int InitializeSystem(int isAppli, unsigned short OptionNum)
+P_T 00000000              _InitializeSystem:               ; function: InitializeSystem
+                                                           ; frame size=0
+         CPONG.c   248    {
+         CPONG.c   249        return INIT_ADDIN_APPLICATION(isAppli, OptionNum);
+    00000000 D301                   MOV.L       L402+2,R3  ; _INIT_ADDIN_APPLICATION
+    00000002 432B                   JMP         @R3
+    00000004 0009                   NOP
+    00000006              L402:                             
+    00000006 0000                   .DATA.W     0
+    00000008 <00000000>             .DATA.L     _INIT_ADDIN_APPLICATION
+         CPONG.c   250    }
+         CPONG.c   251    
+         CPONG.c   252    #pragma section
+         CPONG.c   253    
+C   00000000              L317:
+    00000000 5354415254             .SDATA      "START"
+    00000005 00                     .DATA.B     H'00
+    00000006 00000002               .RES.W      1
+    00000008              L330:
+    00000008 5041555345             .SDATA      "PAUSED"
+             44           
+    0000000E 00                     .DATA.B     H'00
+    0000000F 00000001               .RES.B      1
+    00000010              L343:
+    00000010 47414D4520             .SDATA      "GAME OVER"
+             4F564552     
+    00000019 00                     .DATA.B     H'00
+    0000001A 00000002               .RES.W      1
+    0000001C              L345:
+    0000001C 504C415945             .SDATA      "PLAYER 1: "
+             5220313A20   
+    00000026 00                     .DATA.B     H'00
+    00000027 00000001               .RES.B      1
+    00000028              L347:
+    00000028 504C415945             .SDATA      "PLAYER 2: "
+             5220323A20   
+    00000032 00                     .DATA.B     H'00
+B_B 00000000              _BR_Size:                        ; static: BR_Size
+    00000000 00000004               .RES.L      1
+
+
+
+
+
+SH SERIES C/C++ Compiler (Ver. 6.0C)                                                                 21-Jan-2018 19:36:06  PAGE    1
+
+
+******** STATISTICS INFORMATION ********
+
+
+********** ERROR INFORMATION ***********
+
+NUMBER OF ERRORS:           0
+NUMBER OF WARNINGS:         0
+
+
+
+
+******* SOURCE LINE INFORMATION ********
+
+COMPILED SOURCE LINE:      253
+
+
+
+******* SECTION SIZE INFORMATION *******
+
+PROGRAM  SECTION (P):                               0000037C Byte(s)
+PROGRAM  SECTION (P_BR_Size):                       00000000 Byte(s)
+PROGRAM  SECTION (P_TOP):                           0000000C Byte(s)
+CONSTANT SECTION (C):                               00000033 Byte(s)
+CONSTANT SECTION (C_BR_Size):                       00000000 Byte(s)
+CONSTANT SECTION (C_TOP):                           00000000 Byte(s)
+DATA     SECTION (D):                               00000000 Byte(s)
+DATA     SECTION (D_BR_Size):                       00000000 Byte(s)
+DATA     SECTION (D_TOP):                           00000000 Byte(s)
+BSS      SECTION (B):                               00000000 Byte(s)
+BSS      SECTION (B_BR_Size):                       00000004 Byte(s)
+BSS      SECTION (B_TOP):                           00000000 Byte(s)
+
+ TOTAL PROGRAM SIZE: 000003BF Byte(s)
+
+
+
+********** LABEL INFORMATION ***********
+
+NUMBER OF EXTERNAL REFERENCE SYMBOLS:           16
+NUMBER OF EXTERNAL DEFINITION SYMBOLS:           9
+NUMBER OF INTERNAL/EXTERNAL SYMBOLS:            54
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** COMMAND PARAMETER ***
+
+
+  -subcommand=C:\Users\timmy\AppData\Local\Temp\hmk816F.tmp 
+

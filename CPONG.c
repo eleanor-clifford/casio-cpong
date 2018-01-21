@@ -22,73 +22,87 @@
 //  retval  :   1 = No error / 0 = Error
 //
 //****************************************************************************
-void reset();
+#define BAT_SIZE 6
+typedef struct tag_Ball { 
+    int x;
+    int y;
+    int xV;
+    int yV;
+} Ball;
+void reset(Ball*);
 void pause();
 void endGame(int,int);
+unsigned char* IntToString(int);
+void DrawPlayer(float,float);
+void DrawBall(Ball*);
 int AddIn_main(int isAppli, unsigned short OptionNum)
 {
     unsigned int key;
-
-    Bdisp_AllClr_DDVRAM();
-    const int BAT_SIZE
-    //TODO: Set ViewWindow
     
-    float player1Pos = 40f;
-    float player2Pos = 40f;
-    int sensitivity = 4;
+    float player1Pos = 40;
+    float player2Pos = 40;
+    int sensitivity = 1;
+    
     //TODO: input speed
     int speed = 1;
     int player1Score = 0;
     int player2Score = 0;
 
     int i = -1;
+    int j;
+    
+    const unsigned char *text = (unsigned char*) "START";
+    
+    Ball *ball = (Ball*) malloc(sizeof(Ball));
+    reset(ball);
+
     Bdisp_AllClr_DDVRAM(); // clear
-    PrintXY(5,57,"START",0); // print to VRAM
+    PrintXY(5,57,text,0); // print to VRAM
     Bdisp_PutDisp_DD(); // copy VRAM to Display Driver
-    // LBL 0 (reset)
-    typedef struct { 
-        int x;
-        int y;
-        int xV;
-        int yV;
-    } Ball;
-    Ball *ball = malloc(sizeof(Ball)); 
     
     Sleep(500);
-    
+    Bkey_Set_RepeatTime(1,1);
     while(1)
     {
-        i++;
-        GetKey(&key);
-        switch (key) 
-        {
-            case 72:
-                player1Pos += sensitivity;
-                break;
-            case 73:
-                player1Pos -= sensitivity;
-                break;
-            case 37:
-                player2Pos += sensitivity;
-                break;
-            case 28:
-                player2Pos -= sensitivity;
-                break;
-            case 44:
-                pause();
-                break;
-        }
         ball->x += ball->xV;
         ball->y += ball->yV;
+        i++;
+        
+        Sleep(100);
+        
+        // Fixing CASIO's retardation
+        //GetKeyWait(KEYWAIT_HALTON_TIMEROFF, 0, 0, &key); 
+        GetKey(&key);
+
+        switch (key) 
+        {
+            case KEY_CHAR_4:
+                player1Pos -= sensitivity;
+                break;
+            case KEY_CHAR_1:
+                player1Pos += sensitivity;
+                break;
+            case KEY_CTRL_UP:
+                player2Pos -= sensitivity;
+                break;
+            case KEY_CTRL_DOWN:
+                player2Pos += sensitivity;
+                break;
+            case KEY_CTRL_DEL:
+                pause();
+                break;
+            default:
+                break;
+        }
         switch (ball->x)
         {
             case 5:
-                if (ballY < player1Pos + BAT_SIZE && ballY > player1Pos - BAT_SIZE)
-                    vBallY *= -1;
+                if (ball->y < player1Pos + BAT_SIZE && ball->y > player1Pos - BAT_SIZE)
+                    ball->xV *= -1;
                 break;
             case 120: 
-                if (ballY < player2Pos + BAT_SIZE && ballY > player2Pos - BAT_SIZE
-                    vBallY *= -1;
+                if (ball->y < player2Pos + BAT_SIZE && ball->y > player2Pos - BAT_SIZE)
+                    ball->xV *= -1;
                 break;
             case 1: 
                 if (++player2Score == 7) {
@@ -99,6 +113,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
                     reset(ball);
                     continue; // restart game loop
                 }
+                break;
             case 125:
                 if (++player1Score == 7) {
                     // GOTO 1
@@ -108,76 +123,98 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
                     reset(ball);
                     continue; // restart game loop
                 }
+                break;
+            default:
+                break;
         }
         switch (ball->y) // optimisation - compiler will generate jump tables
         {
             case 1:
             case 63:
-                vBallY *= -1;
+                ball->yV *= -1;
                 break; 
+            default:
+                break;
         }
         // TODO: SPEED
+        //const unsigned char* test = (unsigned char*)"TEST";
         /*
-         * Cls
-         * F-Line 5,playerXPos - BAT_SIZE,5,playerXPos + BAT_SIZE
-         * F-Line 122,playerYPos - BAT_SIZE,122,playerYPos + BAT_SIZE
-         * F-Line ball->x,ball->y,ball->x+1,ball->y
-         * F-Line ball->x,ball->y+1,ball->x+1,ball->y+1
-         * Text 5,50,player1Score
-         * Text 5,80,player2Score
-         */
         Bdisp_AllClr_DDVRAM();
-        Bdisp_DrawLineVRAM(5,playerXPos - BAT_SIZE,5,playerXPos + BAT_SIZE);
-        BDisp_DrawLineVRAM(122,playerYPos - BAT_SIZE,122,playerYPos + BAT_SIZE);
-        BDisp_SetPoint_VRAM(ball->x,ball->y,1);
-        BDisp_SetPoint_VRAM(ball->x,ball->y+1,1);
-        BDisp_SetPoint_VRAM(ball->x+1,ball->y,1);
-        BDisp_SetPoint_VRAM(ball->x+1,ball->y+1,1);
-        PrintXY(5,50,player1Score,0);
-        PrintXY(5,80,player2Score);
+        for (j = 0; j < key; j++) {
+            Bdisp_SetPoint_VRAM(j+5,25,1);
+        }
+        */
+        //PrintXY(60,5,IntToString((int)key),0);
+        Bdisp_AllClr_DDVRAM();
+        PrintXY(50,5,IntToString(player1Score),0);
+        PrintXY(80,5,IntToString(player2Score),0);
+        DrawPlayer(5,player1Pos);
+        DrawPlayer(122,player2Pos);
+        DrawBall(ball);
         Bdisp_PutDisp_DD();
     }
     return 1;
 }
 void pause()
 {
-    BDisp_AllClr_DDVRAM();
-    PrintXY(1,1,"PAUSED",0);
-    Bdisp_PutDisp_DD();
+    
+    const unsigned char* text = (unsigned char*)"PAUSED";
     unsigned int key;
-    do {
-        GetKey(&key);
-    } while (key != 31)
+    
+    Bdisp_AllClr_DDVRAM();
+    PrintXY(1,1,text,0);
+    Bdisp_PutDisp_DD();
+    
+    GetKey(&key);
 }
-void reset(Ball *ball) 
+
+void reset(Ball* ball) 
 {
     ball->x = 60;
     ball->y = 40;
-    ball->xV = 5;
-    ball->yV = 3;
+    ball->xV = 1;
+    ball->yV = 1;
     Sleep(500);
 }
-void endGame()
+void DrawPlayer(float x, float y)
+{
+    Bdisp_DrawLineVRAM(x,(int)y - BAT_SIZE,x,(int)y + BAT_SIZE);
+}
+void DrawBall(Ball* ball) 
+{
+    Bdisp_SetPoint_VRAM(ball->x,ball->y,1);
+    Bdisp_SetPoint_VRAM(ball->x,ball->y+1,1);
+    Bdisp_SetPoint_VRAM(ball->x+1,ball->y,1);
+    Bdisp_SetPoint_VRAM(ball->x+1,ball->y+1,1);
+}
+
+void endGame(int player1Score,int player2Score)
 {
     // Lbl 1
-    /* 
-     * Cls
-     * Text 5,5,"GAME OVER"
-     * Text 15,5,"PLAYER 1: "
-     * Text 15,42, player1Score
-     * Text 25,5, "PLAYER 2: "
-     * Text 25,42, player2Score
-     * Stop
-     */
-    BDisp_AllClr_DDVRAM();
-    PrintXY(5,5,"GAME OVER",0);
-    PrintXY(15,5,"PLAYER 1: ",0);
-    PrintXY(15,42, player1Score,0);
-    PrintXY(25,5, "PLAYER 2: ",0);
-    PrintXY(25,42, player2Score,0);
+    const unsigned char* ov = (unsigned char*)"GAME OVER";
+    const unsigned char* p1 = (unsigned char*)"PLAYER 1: ";
+    const unsigned char* p2 = (unsigned char*)"PLAYER 2: ";
+    const unsigned char* p1s = IntToString(player1Score);
+    const unsigned char* p2s = IntToString(player2Score);
+    
+    Bdisp_AllClr_DDVRAM();
+    PrintXY(5,5,ov,0);
+    PrintXY(15,5,p1,0);
+    PrintXY(15,42, p1s,0);
+    PrintXY(25,5, p2,0);
+    PrintXY(25,42, p2s,0);
     Bdisp_PutDisp_DD();
-    exit 0;
+    Sleep(100);
+    //exit 0;
 }
+unsigned char* IntToString(int in)
+{
+    // NOTE: Does not work for int > 9
+    unsigned char* out = (unsigned char*)malloc(2*sizeof(unsigned char));
+    *(out+1) = '\x0';
+    *out = (unsigned char) in + 48; 
+    return out;
+} 
 
 
 

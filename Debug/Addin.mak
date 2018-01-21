@@ -3,10 +3,10 @@
 #
 ############################
 # Directory defines
-TCDIR = C:\Program Files (x86)\CASIO\fx-9860G SDK\OS\SH
-OSDIR = C:\Program Files (x86)\CASIO\fx-9860G SDK\OS
-APPDIR = C:\Program Files (x86)\CASIO\casio-cpong
-OUTDIR = C:\Program Files (x86)\CASIO\casio-cpong\Debug
+TCDIR = C:\Program Files\CASIO\fx-9860G SDK\OS\SH
+OSDIR = C:\Program Files\CASIO\fx-9860G SDK\OS
+APPDIR = C:\Users\timmy\Projects\casio-cpong
+OUTDIR = C:\Users\timmy\Projects\casio-cpong\Debug
 
 ################
 # Main Defines
