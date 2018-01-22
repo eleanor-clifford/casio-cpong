@@ -74,7 +74,30 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         // CASIO is retarded and made IsKeyDown deprecated, so let's just use !IsKeyUp
         // Okay that doesn't work either. Imma just try a bunch of shit.
         Bkey_GetKeyWait(&key1,&key2,KEYWAIT_HALTOFF_TIMEROFF,0,0,&unused);
-
+        switch (key1) 
+        {
+            case KEY_CHAR_4:
+                player1Pos -= sensitivity;
+                break;
+            case KEY_CHAR_1:
+                player1Pos += sensitivity;
+                break;
+            case KEY_CTRL_UP:
+                player2Pos -= sensitivity;
+                break;
+            case KEY_CTRL_DOWN:
+                player2Pos += sensitivity;
+                break;
+            case KEY_CTRL_DEL:
+                pause();
+                break;
+            case KEY_CTRL_SHIFT:
+                sensitivity += 0.1;
+                break;
+            case KEY_CTRL_ALPHA:
+                sensitivity -= 0.1;
+                break;
+        }
         /*
         if (!IsKeyUp(KEY_CHAR_4)) {
             player1Pos -= sensitivity;
