@@ -37,7 +37,8 @@ void DrawPlayer(float,float);
 void DrawBall(Ball*);
 int AddIn_main(int isAppli, unsigned short OptionNum)
 {
-    unsigned int key;
+    unsigned int key1 = 0, key2 = 0;
+    short unused = 0;
     
     float player1Pos = 40;
     float player2Pos = 40;
@@ -71,7 +72,10 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         //Sleep(5);
         
         // CASIO is retarded and made IsKeyDown deprecated, so let's just use !IsKeyUp
+        // Okay that doesn't work either. Imma just try a bunch of shit.
+        Bkey_GetKeyWait(&key1,&key2,KEYWAIT_HALTOFF_TIMEROFF,0,0,&unused);
 
+        /*
         if (!IsKeyUp(KEY_CHAR_4)) {
             player1Pos -= sensitivity;
         }
@@ -93,6 +97,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         if (!IsKeyUp(KEY_CTRL_ALPHA)) {
             sensitivity -= 0.1;
         }
+        */
         switch ((int)ball->x)
         {
            case 2:
@@ -156,12 +161,10 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         }
         // TODO: SPEED
         //const unsigned char* test = (unsigned char*)"TEST";
-        /*
         Bdisp_AllClr_DDVRAM();
-        for (j = 0; j < key; j++) {
+        for (j = 0; j < key1; j++) {
             Bdisp_SetPoint_VRAM(j+5,25,1);
         }
-        */
         //PrintXY(60,5,IntToString((int)key),0);
         Bdisp_AllClr_DDVRAM();
         PrintXY(50,5,IntToString(player1Score),0);
