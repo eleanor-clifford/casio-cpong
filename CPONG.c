@@ -76,27 +76,31 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         Bkey_GetKeyWait(&key1,&key2,KEYWAIT_HALTOFF_TIMEROFF,0,0,&unused);
         switch (key1) 
         {
-            case KEY_CHAR_4:
-                player1Pos -= sensitivity;
-                break;
-            case KEY_CHAR_1:
-                player1Pos += sensitivity;
-                break;
-            case KEY_CTRL_UP:
+            case 2: // KEY_CTRL_UP
                 player2Pos -= sensitivity;
                 break;
-            case KEY_CTRL_DOWN:
+            case 3: // KEY_CTRL_DOWN
                 player2Pos += sensitivity;
                 break;
-            case KEY_CTRL_DEL:
+            case 4: // KEY_CTRL_DEL
                 pause();
                 break;
-            case KEY_CTRL_SHIFT:
-                sensitivity += 0.1;
-                break;
-            case KEY_CTRL_ALPHA:
-                sensitivity -= 0.1;
-                break;
+            case 7:
+                switch (key2) 
+                {
+                    case 4: // KEY_CHAR_4
+                        player1Pos -= sensitivity;
+                        break;
+                    case 3: // KEY_CHAR_1
+                        player1Pos += sensitivity;
+                        break;
+                    case 9: // KEY_CTRL_SHIFT
+                        sensitivity += 0.1;
+                        break;
+                    case 8: // KEY_CTRL_ALPHA
+                        sensitivity -= 0.1;
+                        break;
+                }
         }
         /*
         if (!IsKeyUp(KEY_CHAR_4)) {
