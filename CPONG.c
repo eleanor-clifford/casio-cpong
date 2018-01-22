@@ -24,10 +24,10 @@
 //****************************************************************************
 #define BAT_SIZE 6
 typedef struct tag_Ball { 
-    int x;
-    int y;
-    int xV;
-    int yV;
+    float x;
+    float y;
+    float xV;
+    float yV;
 } Ball;
 void reset(Ball*);
 void pause();
@@ -41,7 +41,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     
     float player1Pos = 40;
     float player2Pos = 40;
-    int sensitivity = 1;
+    float sensitivity = 0.5;
     
     //TODO: input speed
     int speed = 1;
@@ -64,11 +64,11 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     Bkey_Set_RepeatTime(1,1);
     while(1)
     {
-        ball->x += ball->xV;
-        ball->y += ball->yV;
+        ball->x += ball->xV * sensitivity;
+        ball->y += ball->yV * sensitivity;
         i++;
         
-        Sleep(100);
+        //Sleep(5);
         
         // CASIO is retarded and made IsKeyDown deprecated, so let's just use !IsKeyUp
 
@@ -87,16 +87,30 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         if (!IsKeyUp(KEY_CTRL_DEL)) {
             pause();
         }
-        switch (ball->x)
+        if (!IsKeyUp(KEY_CTRL_SHIFT)) {
+            sensitivity += 0.1;
+        }
+        if (!IsKeyUp(KEY_CTRL_ALPHA)) {
+            sensitivity -= 0.1;
+        }
+        switch ((int)ball->x)
         {
-            case 5:
+           case 2:
+           case 3:
+           case 4:   
+           case 5:
                 if (ball->y < player1Pos + BAT_SIZE && ball->y > player1Pos - BAT_SIZE)
                     ball->xV *= -1;
                 break;
-            case 120: 
+            case 120:
+            case 121:
+            case 122:
+            case 123:
+            case 124: 
                 if (ball->y < player2Pos + BAT_SIZE && ball->y > player2Pos - BAT_SIZE)
                     ball->xV *= -1;
                 break;
+            case 0:
             case 1: 
                 if (++player2Score == 7) {
                     // GOTO 1
@@ -108,6 +122,9 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
                 }
                 break;
             case 125:
+            case 126:
+            case 127:
+            case 128:
                 if (++player1Score == 7) {
                     // GOTO 1
                     endGame(player1Score,player2Score);
@@ -120,10 +137,18 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
             default:
                 break;
         }
-        switch (ball->y) // optimisation - compiler will generate jump tables
+        switch ((int)ball->y) // optimisation - compiler will generate jump tables
         {
+            case -3:
+            case -2:
+            case -1:
+            case 0:
             case 1:
             case 63:
+            case 64:
+            case 65:
+            case 66:
+            case 67:
                 ball->yV *= -1;
                 break; 
             default:
@@ -175,10 +200,10 @@ void DrawPlayer(float x, float y)
 }
 void DrawBall(Ball* ball) 
 {
-    Bdisp_SetPoint_VRAM(ball->x,ball->y,1);
-    Bdisp_SetPoint_VRAM(ball->x,ball->y+1,1);
-    Bdisp_SetPoint_VRAM(ball->x+1,ball->y,1);
-    Bdisp_SetPoint_VRAM(ball->x+1,ball->y+1,1);
+    Bdisp_SetPoint_VRAM((int)ball->x,(int)ball->y,1);
+    Bdisp_SetPoint_VRAM((int)ball->x,(int)ball->y+1,1);
+    Bdisp_SetPoint_VRAM((int)ball->x+1,(int)ball->y,1);
+    Bdisp_SetPoint_VRAM((int)ball->x+1,(int)ball->y+1,1);
 }
 
 void endGame(int player1Score,int player2Score)
@@ -192,12 +217,12 @@ void endGame(int player1Score,int player2Score)
     
     Bdisp_AllClr_DDVRAM();
     PrintXY(5,5,ov,0);
-    PrintXY(15,5,p1,0);
-    PrintXY(15,42, p1s,0);
-    PrintXY(25,5, p2,0);
-    PrintXY(25,42, p2s,0);
+    PrintXY(5,15,p1,0);
+    PrintXY(62,15, p1s,0);
+    PrintXY(5,25, p2,0);
+    PrintXY(62,25, p2s,0);
     Bdisp_PutDisp_DD();
-    Sleep(100);
+    Sleep(10000);
     //exit 0;
 }
 unsigned char* IntToString(int in)
