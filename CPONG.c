@@ -59,9 +59,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     const unsigned char *text = (unsigned char*) "START";
     
     Ball *ball = (Ball*) malloc(sizeof(Ball));
-    Ball *lastBall = (Ball*)malloc(sizeof(Ball)); // for trail
     reset(ball);
-    reset(lastBall);
 
     Bdisp_AllClr_DDVRAM(); // clear
     PrintXY(5,57,text,0); // print to VRAM
@@ -75,8 +73,6 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     {
         *goV = 0;
         SetTimer(1,frametime,&go);
-        lastBall->x = ball->x;
-        lastBall->y = ball->y
         ball->x += ball->xV * sensitivity;
         ball->y += ball->yV * sensitivity;
         i++;
@@ -194,7 +190,6 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         DrawPlayer(5,player1Pos);
         DrawPlayer(122,player2Pos);
         DrawBall(ball);
-        DrawBall(lastBall);
         Bdisp_PutDisp_DD();
         while (!*goV) {}
     }
@@ -227,11 +222,20 @@ void DrawPlayer(float x, float y)
 }
 void DrawBall(Ball* ball) 
 {
+    SIZE = 3;
+    for (int k = 0; k < SIZE; k++) {
+        for (int l = 0; l < size; l++) {
+            Bdisp_SetPoint_VRAM((int)ball->x+k,(int)ball->y+l,1);
+        }
+    }
+    /*
     Bdisp_SetPoint_VRAM((int)ball->x,(int)ball->y,1);
     Bdisp_SetPoint_VRAM((int)ball->x,(int)ball->y+1,1);
     Bdisp_SetPoint_VRAM((int)ball->x+1,(int)ball->y,1);
     Bdisp_SetPoint_VRAM((int)ball->x+1,(int)ball->y+1,1);
+    */
 }
+
 
 void endGame(int player1Score,int player2Score)
 {

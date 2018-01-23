@@ -9,7 +9,7 @@ Height=4740
 Width=5565
 State=0
 Flags=00000020
-Setting=48:24:CPONG.c
+Setting=48:24:\CPONG.c
 OptionA=0
 
 [_2]
@@ -26,7 +26,7 @@ OptionB=15
 
 [_3]
 Type=6
-Order=0
+Order=2
 Top=3450
 Left=7755
 Height=6390
@@ -103,12 +103,12 @@ OptionA=0
 
 [_32]
 Type=16
-Order=2
+Order=0
 Top=0
 Left=2205
 Height=4590
 Width=5595
 State=0
 Flags=00000020
-Setting=48:23:CPONG.c
+Setting=50:5:\CPONG.c
 OptionA=0
