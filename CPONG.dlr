@@ -4,8 +4,15 @@
 File=C:\Users\timmy\casio-cpong\CPONG.c
 Line=100
 Flags=00001012
+Sublevel=1
 
 [Breakpoint]
 File=C:\Users\timmy\casio-cpong\CPONG.c
 Line=78
 Flags=00001012
+
+[Breakpoint]
+File=C:\Users\timmy\casio-cpong\CPONG.c
+Line=100
+Flags=00001012
+Sublevel=2

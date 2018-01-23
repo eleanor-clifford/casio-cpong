@@ -29,12 +29,14 @@ typedef struct tag_Ball {
     float xV;
     float yV;
 } Ball;
+char* goV;
 void reset(Ball*);
 void pause();
 void endGame(int,int);
 unsigned char* IntToString(int);
 void DrawPlayer(float,float);
 void DrawBall(Ball*);
+void go(void);
 int AddIn_main(int isAppli, unsigned short OptionNum)
 {
     unsigned int key1 = 0, key2 = 0;
@@ -43,6 +45,8 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     float player1Pos = 40;
     float player2Pos = 40;
     float sensitivity = 0.5;
+     int frametime = 25;
+
     
     //TODO: input speed
     int speed = 1;
@@ -62,9 +66,13 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     Bdisp_PutDisp_DD(); // copy VRAM to Display Driver
     
     Sleep(500);
+    
     Bkey_Set_RepeatTime(1,1);
+    goV = (char*)malloc(sizeof(char));
     while(1)
     {
+        *goV = 0;
+        SetTimer(1,frametime,&go);
         ball->x += ball->xV * sensitivity;
         ball->y += ball->yV * sensitivity;
         i++;
@@ -73,7 +81,9 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         
         // CASIO is retarded and made IsKeyDown deprecated, so let's just use !IsKeyUp
         // Okay that doesn't work either. Imma just try a bunch of shit.
+        key1 = 0; key2 = 0;
         Bkey_GetKeyWait(&key1,&key2,KEYWAIT_HALTOFF_TIMEROFF,0,0,&unused);
+        //Sleep(50);
         switch (key1) 
         {
             case 2: // KEY_CTRL_UP
@@ -102,36 +112,13 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
                         break;
                 }
         }
-        /*
-        if (!IsKeyUp(KEY_CHAR_4)) {
-            player1Pos -= sensitivity;
-        }
-        if (!IsKeyUp(KEY_CHAR_1)) {
-            player1Pos += sensitivity;
-        }
-        if (!IsKeyUp(KEY_CTRL_UP)) {
-            player2Pos -= sensitivity;
-        }
-        if (!IsKeyUp(KEY_CTRL_DOWN)) {
-            player2Pos += sensitivity;
-        }
-        if (!IsKeyUp(KEY_CTRL_DEL)) {
-            pause();
-        }
-        if (!IsKeyUp(KEY_CTRL_SHIFT)) {
-            sensitivity += 0.1;
-        }
-        if (!IsKeyUp(KEY_CTRL_ALPHA)) {
-            sensitivity -= 0.1;
-        }
-        */
         switch ((int)ball->x)
         {
            case 2:
            case 3:
            case 4:   
            case 5:
-                if (ball->y < player1Pos + BAT_SIZE && ball->y > player1Pos - BAT_SIZE)
+                if (ball->xV < 0 && ball->y < player1Pos + BAT_SIZE && ball->y > player1Pos - BAT_SIZE)
                     ball->xV *= -1;
                 break;
             case 120:
@@ -139,7 +126,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
             case 122:
             case 123:
             case 124: 
-                if (ball->y < player2Pos + BAT_SIZE && ball->y > player2Pos - BAT_SIZE)
+                if (ball->xV > 0 && ball->y < player2Pos + BAT_SIZE && ball->y > player2Pos - BAT_SIZE)
                     ball->xV *= -1;
                 break;
             case 0:
@@ -200,6 +187,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         DrawPlayer(122,player2Pos);
         DrawBall(ball);
         Bdisp_PutDisp_DD();
+        while (!*goV) {}
     }
     return 1;
 }
@@ -221,7 +209,7 @@ void reset(Ball* ball)
     ball->x = 60;
     ball->y = 40;
     ball->xV = 1;
-    ball->yV = 1;
+    ball->yV = 0.5;
     Sleep(500);
 }
 void DrawPlayer(float x, float y)
@@ -263,6 +251,9 @@ unsigned char* IntToString(int in)
     *out = (unsigned char) in + 48; 
     return out;
 } 
+void go() {
+	*goV= 1;
+}
 
 
 
