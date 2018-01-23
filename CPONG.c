@@ -88,19 +88,15 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         switch (key1) 
         {
             case 2: // KEY_CTRL_UP
-                Sleep(100);
                 player2Pos -= sensitivity;
                 break;
             case 3: // KEY_CTRL_DOWN
-                Sleep(100);
                 player2Pos += sensitivity;
                 break;
             case 4: // KEY_CTRL_DEL
-                Sleep(100);
                 pause();
                 break;
             case 7:
-                Sleep(100);
                 switch (key2) 
                 {
                     case 4: // KEY_CHAR_4
