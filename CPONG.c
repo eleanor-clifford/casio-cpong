@@ -55,7 +55,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     int player2Score = 0;
 
     int i = -1;
-    int j,k,l;
+    int j;
     
     const unsigned char *text = (unsigned char*) "START";
     
@@ -223,6 +223,7 @@ void DrawPlayer(float x, float y)
 }
 void DrawBall(Ball* ball) 
 {
+    int k,l;
     for (k = 0; k < BALL_SIZE; k++) {
         for (l = 0; l < BALL_SIZE; l++) {
             Bdisp_SetPoint_VRAM((int)ball->x+k,(int)ball->y+l,1);
