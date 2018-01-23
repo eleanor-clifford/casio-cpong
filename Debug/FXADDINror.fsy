@@ -7,101 +7,101 @@ _reset: .equ h'003005c0
  .export _pause
 _pause: .equ h'00300554
  .export _endGame
-_endGame: .equ h'0030066e
+_endGame: .equ h'00300652
  .export _IntToString
-_IntToString: .equ h'003006d8
+_IntToString: .equ h'003006bc
  .export _DrawPlayer
 _DrawPlayer: .equ h'003005d8
  .export _DrawBall
 _DrawBall: .equ h'00300604
  .export _go
-_go: .equ h'003006f8
+_go: .equ h'003006dc
  .export _AddIn_main
 _AddIn_main: .equ h'0030020c
  .export ___LINK_PROTECT
-___LINK_PROTECT: .equ h'00300748
+___LINK_PROTECT: .equ h'0030072c
  .export _SetQuitHandler
-_SetQuitHandler: .equ h'0030074c
+_SetQuitHandler: .equ h'00300730
  .export _OnAppCloseDefault
-_OnAppCloseDefault: .equ h'00300752
+_OnAppCloseDefault: .equ h'00300736
  .export __INITSCT_ADDIN
-__INITSCT_ADDIN: .equ h'003007a6
+__INITSCT_ADDIN: .equ h'0030078a
  .export _INIT_ADDIN_APPLICATION
-_INIT_ADDIN_APPLICATION: .equ h'003007ee
+_INIT_ADDIN_APPLICATION: .equ h'003007d2
  .export __addd
-__addd: .equ h'00300934
+__addd: .equ h'00300918
  .export __subdr
-__subdr: .equ h'0030087c
+__subdr: .equ h'00300860
  .export __subd
-__subd: .equ h'00300864
+__subd: .equ h'00300848
  .export __adds
-__adds: .equ h'00300bfa
+__adds: .equ h'00300bde
  .export __subs
-__subs: .equ h'00300bf4
+__subs: .equ h'00300bd8
  .export __dtos
-__dtos: .equ h'00300e60
+__dtos: .equ h'00300e44
  .export __gts
-__gts: .equ h'00300f3c
+__gts: .equ h'00300f20
  .export __lts
-__lts: .equ h'00300fb4
+__lts: .equ h'00300f98
  .export __muls
-__muls: .equ h'0030102c
+__muls: .equ h'00301010
  .export __stod
-__stod: .equ h'0030116c
+__stod: .equ h'00301150
  .export __stou
-__stou: .equ h'003011f4
+__stou: .equ h'003011d8
  .export __stoi
-__stoi: .equ h'003011f4
+__stoi: .equ h'003011d8
  .export _Bdel_cychdr
-_Bdel_cychdr: .equ h'0030124c
+_Bdel_cychdr: .equ h'00301230
  .export _Bdisp_AllClr_DDVRAM
-_Bdisp_AllClr_DDVRAM: .equ h'0030125c
+_Bdisp_AllClr_DDVRAM: .equ h'00301240
  .export _Bdisp_PutDisp_DD
-_Bdisp_PutDisp_DD: .equ h'0030126c
+_Bdisp_PutDisp_DD: .equ h'00301250
  .export _Bdisp_DrawLineVRAM
-_Bdisp_DrawLineVRAM: .equ h'0030127c
+_Bdisp_DrawLineVRAM: .equ h'00301260
  .export _Bdisp_SetPoint_VRAM
-_Bdisp_SetPoint_VRAM: .equ h'0030128c
+_Bdisp_SetPoint_VRAM: .equ h'00301270
  .export _BfileFLS_CloseFile
-_BfileFLS_CloseFile: .equ h'0030129c
+_BfileFLS_CloseFile: .equ h'00301280
  .export _Bkey_GetKeyWait
-_Bkey_GetKeyWait: .equ h'003012ac
+_Bkey_GetKeyWait: .equ h'00301290
  .export _Bkey_Set_RepeatTime
-_Bkey_Set_RepeatTime: .equ h'003012bc
+_Bkey_Set_RepeatTime: .equ h'003012a0
  .export _Bkey_Set_RepeatTime_Default
-_Bkey_Set_RepeatTime_Default: .equ h'003012cc
+_Bkey_Set_RepeatTime_Default: .equ h'003012b0
  .export _CallbackAtQuitMainFunction
-_CallbackAtQuitMainFunction: .equ h'003012dc
+_CallbackAtQuitMainFunction: .equ h'003012c0
  .export _flsFindClose
-_flsFindClose: .equ h'003012ec
+_flsFindClose: .equ h'003012d0
  .export _GetKey
-_GetKey: .equ h'003012fc
+_GetKey: .equ h'003012e0
  .export _GLibAddinAplExecutionCheck
-_GLibAddinAplExecutionCheck: .equ h'0030130c
+_GLibAddinAplExecutionCheck: .equ h'003012f0
  .export _Hmem_SetMMU
-_Hmem_SetMMU: .equ h'0030131c
+_Hmem_SetMMU: .equ h'00301300
  .export _malloc
-_malloc: .equ h'0030132c
+_malloc: .equ h'00301310
  .export _PrintXY
-_PrintXY: .equ h'0030133c
+_PrintXY: .equ h'00301320
  .export _GetSDKLibraryVersion
-_GetSDKLibraryVersion: .equ h'0030134c
+_GetSDKLibraryVersion: .equ h'00301330
  .export _SetTimer
-_SetTimer: .equ h'00301352
+_SetTimer: .equ h'00301336
  .export _KillTimer
-_KillTimer: .equ h'003013a6
+_KillTimer: .equ h'0030138a
  .export _Sleep
-_Sleep: .equ h'003013ea
+_Sleep: .equ h'003013ce
  .export __divls
-__divls: .equ h'0030144c
+__divls: .equ h'00301430
  .export __modls
-__modls: .equ h'00301500
+__modls: .equ h'003014e4
  .export _Bcre_cychdr
-_Bcre_cychdr: .equ h'003015c8
+_Bcre_cychdr: .equ h'003015ac
  .export _BSrl_DummyWAIT
-_BSrl_DummyWAIT: .equ h'003015d8
+_BSrl_DummyWAIT: .equ h'003015bc
  .export _Bsta_cychdr
-_Bsta_cychdr: .equ h'003015e8
+_Bsta_cychdr: .equ h'003015cc
  .export _Bstp_cychdr
-_Bstp_cychdr: .equ h'003015f8
+_Bstp_cychdr: .equ h'003015dc
  .end
