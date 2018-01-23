@@ -23,6 +23,7 @@
 //
 //****************************************************************************
 #define BAT_SIZE 6
+#define BALL_SIZE 3
 typedef struct tag_Ball { 
     float x;
     float y;
@@ -54,7 +55,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     int player2Score = 0;
 
     int i = -1;
-    int j;
+    int j,k,l;
     
     const unsigned char *text = (unsigned char*) "START";
     
@@ -222,9 +223,8 @@ void DrawPlayer(float x, float y)
 }
 void DrawBall(Ball* ball) 
 {
-    SIZE = 3;
-    for (int k = 0; k < SIZE; k++) {
-        for (int l = 0; l < size; l++) {
+    for (k = 0; k < BALL_SIZE; k++) {
+        for (l = 0; l < BALL_SIZE; l++) {
             Bdisp_SetPoint_VRAM((int)ball->x+k,(int)ball->y+l,1);
         }
     }
