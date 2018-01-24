@@ -8,7 +8,7 @@
 /*                                                               */
 /*****************************************************************/
 #include "fxlib.h"
-
+#include "math.h"
 
 //****************************************************************************
 //  AddIn_main (Sample program main function)
@@ -24,12 +24,14 @@
 //****************************************************************************
 #define BAT_SIZE 6
 #define BALL_SIZE 3
+#define TRAIL_SIZE 5
 typedef struct tag_Ball { 
     float x;
     float y;
     float xV;
     float yV;
 } Ball;
+int** trail;
 char* goV;
 void reset(Ball*);
 void pause();
@@ -46,8 +48,12 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     float player1Pos = 40;
     float player2Pos = 40;
     float sensitivity = 0.5;
-     int frametime = 25;
-
+    int frametime = 25;
+    int trailLength = (int)pow(BALL_SIZE,2)*TRAIL_SIZE; // I know, I know, there's overlap, but it won't matter much.
+    trail = (int**)malloc(trailLength*sizeof(int*));
+    for (int i = 0; i < trailLength; i++) {
+        trail[i] = calloc(2,sizeof(int)); // X,Y
+    }
     
     //TODO: input speed
     int speed = 1;
@@ -59,7 +65,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     
     const unsigned char *text = (unsigned char*) "START";
     
-    Ball *ball = (Ball*) malloc(sizeof(Ball));
+    Ball *ball = (Ball*)malloc(sizeof(Ball));
     reset(ball);
 
     Bdisp_AllClr_DDVRAM(); // clear
@@ -73,7 +79,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
     while(1)
     {
         *goV = 0;
-        SetTimer(1,frametime,&go);
+        SetTimer(1,frametime,&go)
         ball->x += ball->xV * sensitivity;
         ball->y += ball->yV * sensitivity;
         i++;
@@ -82,11 +88,18 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
         
         // CASIO is retarded and made IsKeyDown deprecated, so let's just use !IsKeyUp
         // Okay that doesn't work either. Imma just try a bunch of shit.
+        // Found this in some random forum.
         key1 = 0; key2 = 0;
         Bkey_GetKeyWait(&key1,&key2,KEYWAIT_HALTOFF_TIMEROFF,0,0,&unused);
-        //Sleep(50);
-        switch (key1) 
+        switch (key1) // switch-case is an optimization: it executes much faster than if else trees as the compiler will generate jump tables
         {
+            /* switch-case is an optimization: it executes much faster 
+             * than if else trees as the compiler will generate jump tables.
+             * 
+             * I had to manually binary search the values of key1/key2 for each keypress, 
+             * as the documentation was nowhere to be seen.
+             * In fact, The Bkey_GetKeyWait function isn't in the documentation either.
+             */
             case 2: // KEY_CTRL_UP
                 player2Pos -= sensitivity;
                 break;
@@ -157,7 +170,7 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
             default:
                 break;
         }
-        switch ((int)ball->y) // optimisation - compiler will generate jump tables
+        switch ((int)ball->y)
         {
             case -3:
             case -2:
@@ -174,21 +187,16 @@ int AddIn_main(int isAppli, unsigned short OptionNum)
             default:
                 break;
         }
-        // TODO: SPEED
-        //const unsigned char* test = (unsigned char*)"TEST";
         Bdisp_AllClr_DDVRAM();
-        for (j = 0; j < key1; j++) {
-            Bdisp_SetPoint_VRAM(j+5,25,1);
-        }
-        //PrintXY(60,5,IntToString((int)key),0);
         Bdisp_AllClr_DDVRAM();
         PrintXY(50,5,IntToString(player1Score),0);
         PrintXY(80,5,IntToString(player2Score),0);
         DrawPlayer(5,player1Pos);
         DrawPlayer(122,player2Pos);
         DrawBall(ball);
+        StepTrail();
         Bdisp_PutDisp_DD();
-        while (!*goV) {}
+        while (!*goV) {} // wait until the timer has finished
     }
     return 1;
 }
@@ -223,14 +231,23 @@ void DrawBall(Ball* ball)
     for (k = 0; k < BALL_SIZE; k++) {
         for (l = 0; l < BALL_SIZE; l++) {
             Bdisp_SetPoint_VRAM((int)ball->x+k,(int)ball->y+l,1);
+            int tr = 0;
+            while (*trail[tr++] == 0) {}
+            *trail[tr] = ball->x+k;
+            *(trail[tr]+1) = ball->y+l;
         }
     }
-    /*
-    Bdisp_SetPoint_VRAM((int)ball->x,(int)ball->y,1);
-    Bdisp_SetPoint_VRAM((int)ball->x,(int)ball->y+1,1);
-    Bdisp_SetPoint_VRAM((int)ball->x+1,(int)ball->y,1);
-    Bdisp_SetPoint_VRAM((int)ball->x+1,(int)ball->y+1,1);
-    */
+}
+void StepTrail() 
+{
+    int i;
+    B_SQR = (int)pow(BALL_SIZE,2);
+    for (i = 0; i < B_SQR; i++)
+    {
+        Bdisp_SetPoint_VRAM(*trail[i],*(trail[i]+1),0);
+        trail[i] = trail[i+B_SQR];
+        trail[i+B_SQR] = (int*)calloc(2,sizeof(int));
+    }
 }
 
 
@@ -265,9 +282,6 @@ void go() {
 	*goV= 1;
 }
 
-
-
-
 //****************************************************************************
 //**************                                              ****************
 //**************                 Notice!                      ****************
@@ -276,11 +290,9 @@ void go() {
 //**************                                              ****************
 //****************************************************************************
 
-
 #pragma section _BR_Size
 unsigned long BR_Size;
 #pragma section
-
 
 #pragma section _TOP
 
